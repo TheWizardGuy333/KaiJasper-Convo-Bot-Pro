@@ -11,3 +11,4 @@ deepai
 llvmlite>=0.41.0
 numba>=0.57.0
 transformers
+datasets
