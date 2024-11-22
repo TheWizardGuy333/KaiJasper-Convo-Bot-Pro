@@ -1,7 +1,7 @@
 from textblob import TextBlob
 import pandas as pd
 from pathlib import Path
-from transformers import pipeline, TrainingArguments, Trainer
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
 from datasets import Dataset
 
 # Path for feedback data storage
@@ -97,14 +97,19 @@ def fine_tune_transformer_model():
 
         # Define the model and tokenizer
         model_name = "distilbert-base-uncased"
-        tokenizer = pipeline("sentiment-analysis", model=model_name).tokenizer
-        
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+
         # Tokenize datasets
         def tokenize_data(batch):
             return tokenizer(batch["text"], padding="max_length", truncation=True)
 
         train_dataset = train_dataset.map(tokenize_data, batched=True)
         eval_dataset = eval_dataset.map(tokenize_data, batched=True)
+
+        # Remove non-tensor columns (necessary for Hugging Face Trainer)
+        train_dataset = train_dataset.remove_columns(["text"])
+        eval_dataset = eval_dataset.remove_columns(["text"])
 
         # Training arguments
         training_args = TrainingArguments(
@@ -116,15 +121,18 @@ def fine_tune_transformer_model():
             per_device_train_batch_size=16,
             per_device_eval_batch_size=16,
             num_train_epochs=3,
-            weight_decay=0.01
+            weight_decay=0.01,
+            save_total_limit=2,
+            load_best_model_at_end=True
         )
 
         # Define the trainer
         trainer = Trainer(
-            model=pipeline("sentiment-analysis", model=model_name).model,
+            model=model,
             args=training_args,
             train_dataset=train_dataset,
-            eval_dataset=eval_dataset
+            eval_dataset=eval_dataset,
+            tokenizer=tokenizer
         )
 
         # Train the model
