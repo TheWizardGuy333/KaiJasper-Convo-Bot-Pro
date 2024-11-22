@@ -5,6 +5,13 @@ from utils.summarization import summarize_text
 from utils.visualizations import plot_sentiment_distribution
 from utils.data_retention import save_chat, get_chat_history, save_feedback
 from config import API_KEY
+import nltk
+
+# Ensure the necessary NLTK data is downloaded
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
 
 st.set_page_config(page_title="KaiJasper Convo Bot Pro", layout="wide")
 
