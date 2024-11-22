@@ -1,4 +1,3 @@
-README Description
 KaiJasper Convo Bot Pro
 KaiJasper Convo Bot Pro is an AI-powered conversational assistant designed to simplify and enhance text and image processing tasks. Built on Streamlit, this application provides a user-friendly interface that integrates advanced NLP (Natural Language Processing), sentiment analysis, and image enhancement features using Deep-Image.ai. It is specifically crafted for users who need actionable insights from text, professional image enhancements, and the ability to analyze and visualize data trends.
 
