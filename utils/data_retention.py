@@ -49,7 +49,7 @@ def get_chat_history():
     except Exception as e:
         return f"Error reading chat history: {e}"
 
-def save_feed(text, feedback):
+def save_feedback(text, feedback):
     """
     Save user feedback to the feedback file.
 
