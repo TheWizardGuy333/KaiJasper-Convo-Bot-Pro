@@ -1,12 +1,11 @@
-from textblob import TextBlob
 import pandas as pd
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
+from textblob import TextBlob
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datasets import Dataset
 
 # Path for feedback data storage
 FEEDBACK_FILE = Path("data/feedback_data.csv")
-
 
 def analyze_sentiment(text):
     """
@@ -21,12 +20,12 @@ def analyze_sentiment(text):
     if not text or not isinstance(text, str):
         raise ValueError("Input text must be a non-empty string.")
     
+    # Using TextBlob to analyze sentiment
     blob = TextBlob(text)
     return {
         "polarity": round(blob.polarity, 2),
         "subjectivity": round(blob.subjectivity, 2)
     }
-
 
 def save_feedback(text, sentiment, feedback):
     """
@@ -63,7 +62,6 @@ def save_feedback(text, sentiment, feedback):
     except Exception as e:
         return f"Error saving feedback: {e}"
 
-
 def prepare_feedback_data():
     """
     Prepare feedback data for model training.
@@ -81,7 +79,6 @@ def prepare_feedback_data():
     
     # Convert to Hugging Face Dataset format
     return Dataset.from_pandas(feedback_data[["text", "label"]])
-
 
 def fine_tune_transformer_model():
     """
@@ -145,7 +142,6 @@ def fine_tune_transformer_model():
 
     except Exception as e:
         return f"Error during training: {e}"
-
 
 def learn_from_feedback():
     """
