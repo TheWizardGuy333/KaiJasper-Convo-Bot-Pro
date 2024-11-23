@@ -1,3 +1,10 @@
+import nltk
+
+# Ensure necessary NLTK data is downloaded
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
 import streamlit as st
 from utils.sentiment_analysis import analyze_sentiment, learn_from_feedback
 from utils.image_processing import process_image
