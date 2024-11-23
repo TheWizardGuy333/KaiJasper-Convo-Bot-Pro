@@ -1,20 +1,14 @@
-import nltk
-
-# Ensure necessary NLTK data is downloaded
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")
 import streamlit as st
+import nltk
 from utils.sentiment_analysis import analyze_sentiment, learn_from_feedback
 from utils.image_processing import process_image
 from utils.summarization import summarize_text
 from utils.visualizations import plot_sentiment_distribution
 from utils.data_retention import save_chat, get_chat_history, save_feedback
+from utils.nlg import generate_response  # For AI replies using Hugging Face Transformers
 from config import API_KEY
-import nltk
 
-# Ensure the necessary NLTK data is downloaded
+# Ensure necessary NLTK data is downloaded
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
@@ -27,7 +21,11 @@ st.markdown("An AI-driven assistant for text and image processing, sentiment ana
 
 # Chatbot Section
 st.header("Chatbot")
-user_input = st.text_area("Enter your text:")
+conversation_history = st.session_state.get("conversation_history", [])
+
+user_input = st.text_area("Enter your message:")
+
+# Analyze Sentiment
 if st.button("Analyze Sentiment"):
     if user_input.strip():
         sentiment = analyze_sentiment(user_input)
@@ -41,6 +39,23 @@ if st.button("Analyze Sentiment"):
     else:
         st.warning("Please enter valid text for sentiment analysis.")
 
+# AI Reply Generation
+if st.button("Get AI Reply"):
+    if user_input.strip():
+        # Generate a reply using Hugging Face Transformers
+        ai_reply = generate_response(user_input)
+        conversation_history.append({"role": "user", "content": user_input})
+        conversation_history.append({"role": "bot", "content": ai_reply})
+        st.session_state.conversation_history = conversation_history
+
+        # Display the conversation
+        for turn in conversation_history:
+            role = "You" if turn["role"] == "user" else "KaiJasper Bot"
+            st.write(f"**{role}:** {turn['content']}")
+    else:
+        st.warning("Please enter text for the AI to respond.")
+
+# Text Summarization
 if st.button("Summarize Text"):
     if user_input.strip():
         summary_method = st.selectbox("Choose Summarization Method", ["simple", "ml"])
@@ -53,11 +68,14 @@ if st.button("Summarize Text"):
 # Image Processing Section
 st.header("Image Processing")
 uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
+
+if uploaded_file:
+    st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+
 if uploaded_file and st.button("Process Image"):
-    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
     processed_image_url = process_image(uploaded_file, API_KEY)
     if processed_image_url:
-        st.image(processed_image_url, caption="Processed Image", use_column_width=True)
+        st.image(processed_image_url, caption="Processed Image", use_container_width=True)
     else:
         st.error("Image processing failed. Please try again.")
 
